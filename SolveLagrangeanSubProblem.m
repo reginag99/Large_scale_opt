@@ -12,7 +12,9 @@
 
 % this is step 2 from algorithm
 
-function [okcom, newnl] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)    
+function x = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)    
+    nrNodes = dimX*dimY*2;
+    x = zeros(nrNodes, nrNodes, k); % contains a 1 for X_ijl if there exists a path from node i to j for link l
     nl = gsp(dimX, dimY, u, k, com); % contains optimized(minimized paths for all subproblems)
     last = 0;
     okcom = [];
@@ -29,4 +31,27 @@ function [okcom, newnl] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)
             newnl = [newnl; nl(first:last)]; % contains node numbers of all the nodes in these contact pairs, sequentially stored
         end
     end
+    
+    % get x from results
+    j = 1;
+    for i = 1:length(okcom)
+        linkNr = okcom(i);
+        linkStartNode = com(linkNr, 1);
+        linkTerminalNode = com(linkNr, 2);
+        while newnl(j) ~= linkStartNode
+            fromNode = newnl(j + 1);
+            toNode = newnl(j);
+            x(fromNode, toNode, linkNr) = 1;
+            j = j + 1;
+        end
+        
+        % this adds a 'logical' link that a connection between and start
+        % and terminal node has been made
+        x(linkStartNode, linkTerminalNode, linkNr) = 1;
+        j = j + 1; % this is to skip the start node
+    end
+    
+    % whats missing is the connections that were never formed because the
+    % cost was above 1. what do we do about these links who lack connection
+    % now
 end
