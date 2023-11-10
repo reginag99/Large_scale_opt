@@ -32,7 +32,7 @@ function x = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)
         end
     end
     
-    % get x from results
+    % get x matrix from results (the links are not bi-directional, should they be?)
     j = 1;
     for i = 1:length(okcom)
         linkNr = okcom(i);
@@ -42,16 +42,18 @@ function x = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)
             fromNode = newnl(j + 1);
             toNode = newnl(j);
             x(fromNode, toNode, linkNr) = 1;
+            x(toNode, fromNode, linkNr) = 1;
             j = j + 1;
         end
         
         % this adds a 'logical' link that a connection between and start
         % and terminal node has been made
         x(linkStartNode, linkTerminalNode, linkNr) = 1;
-        j = j + 1; % this is to skip the start node
+        x(linkTerminalNode, linkStartNode, linkNr) = 1;
+        j = j + 1; % this is to skip the start node so we dont connect two different contact pairs
     end
     
     % whats missing is the connections that were never formed because the
     % cost was above 1. what do we do about these links who lack connection
-    % now
+    % n
 end
