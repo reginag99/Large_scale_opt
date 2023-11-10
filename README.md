@@ -2,8 +2,8 @@
 Hejsan svejsan, en git för oss coola kids i klassen
 
 task 1
-hitta alfa, sigma- Regina
-formel för u- Regina
+hitta alfa, theta- Regina klart
+formel för u- Regina klart
 lagrangen subproblem- lösa genom det som står på sida 4- Tomas
 det vi får ut ör upper bounds
 
@@ -13,7 +13,3 @@ task 2
 task 3
 
 
-
-beräknar nl. det vi får ut är den minst kostsamma vägen från start till slut för varje olika kontaktpar
-dela upp nl i delar där vi ser att startnoden är då detta är olika rutter
-beräkna antalet noder som besöks vid varje rutt
