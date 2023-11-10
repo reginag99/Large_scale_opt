@@ -39,7 +39,7 @@ double DV;
   for(i=0; i<=N; i++)
     Q[i] = 0;          
     D[i] = INF;
-  Q[R] = -1;       
+    Q[R] = -1;       
   D[R] = 0;
   P[R] = 0;
   NN = N+1;
