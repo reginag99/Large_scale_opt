@@ -7,13 +7,16 @@ nrOfIterations = 1000;
 gammaT = [];
 
 for iteration = 1:nrOfIterations
-    SolveLagrangeanSubProblem(u);%hallå gänget tänker att h borde vara antalet kontaktpar som har en lösning
+    [x, upperBound_h] = SolveLagrangeanSubProblem(u);%hallå gänget tänker att h borde vara antalet kontaktpar som har en lösning
+    
+    
+    
     gammaT = CalculateSubGradientDirection();
     %ska vara theta*(hopt-h(u))/gammaT^2; tänker att hoptimal = k
     %ht är lösningen på lagrange, vilket jag tänker att vi får ut i task 2
     alpha = theta*(k-ht)/gammaT^2;
     %theta är en step length parameter, inget mr speciellt
-    u = max(0,u+alpha*max(0,gammaT))
+    u = max(0,u+alpha*max(0,gammaT));
     t = t + 1;
     if mod(iteration, 10) == 0
         theta = theta * 0.95;
