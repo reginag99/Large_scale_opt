@@ -1,20 +1,6 @@
-%% see Algorithm 1 in project description (The subgradient sceheme)
-% 1) Initialize:  t = 0, u_0 = 0, theta_0 = 2
-% 2) Solve lagrangean subproblem for u = u^t and calculate upper bound h(u^t)
-% on the optimal value (h(u^t) as defined in equation (2b) )
-% 3) Calculate a subgradient direction gamma^t, and the step length alpha_t
-% 4) Calculate u^(t+1)
-% 5) Update the value of theta_t (multiply by 0.95 every tenth iteration)
-% 6) Untill termination criterion is fulfilled, let t = t + 1 and repeat
-% from 2
-
-%u = 0; % vector av längd n där n är antal noder = dimX*dimY*2
-
-% this is step 2 from algorithm
-
+% outputs an x matrix of dimensions n*n*k  that contains a 1 for X_ijl if there exists a path from node i to j for contact-pair l
 function x = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)    
-    nrNodes = dimX*dimY*2;
-    x = zeros(nrNodes, nrNodes, k); % contains a 1 for X_ijl if there exists a path from node i to j for link l
+    n = dimX*dimY*2;
     nl = gsp(dimX, dimY, u, k, com); % contains optimized(minimized paths for all subproblems)
     last = 0;
     okcom = [];
@@ -24,7 +10,7 @@ function x = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)
     % save paths with cost < 1
     for i = 1:k
         first = last+1;
-        slask = find(nl(last+1:length(nl))== com(i,1));
+        slask = find(nl(last+1:length(nl)) == com(i,1));
         last = slask(1) + first-1;
         if (sum(u(nl(first:last))) < 1)
             okcom = [okcom i]; % contains row numbers in com vector of the contact pairs with cost < 1
@@ -32,7 +18,8 @@ function x = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)
         end
     end
     
-    % get x matrix from results (the links are not bi-directional, should they be?)
+    % create a large-ass x matrix from results (the links are bi-directional, should they be?)
+    x = zeros(n, n, k); 
     j = 1;
     for i = 1:length(okcom)
         linkNr = okcom(i);
@@ -52,8 +39,4 @@ function x = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)
         x(linkTerminalNode, linkStartNode, linkNr) = 1;
         j = j + 1; % this is to skip the start node so we dont connect two different contact pairs
     end
-    
-    % whats missing is the connections that were never formed because the
-    % cost was above 1. what do we do about these links who lack connection
-    % n
 end
