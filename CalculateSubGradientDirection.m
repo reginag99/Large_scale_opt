@@ -5,7 +5,7 @@ gamma = ones(1, n);
 for i = 1:n
     sum = 0;
     for l = 1:k
-        if n <= dimX*dimY
+        if i <= dimX*dimY
             if mod(i,dimX) ~= dimX
                 sum = sum + x(i+1,i,l);
             end
