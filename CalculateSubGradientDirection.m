@@ -6,10 +6,10 @@ for i = 1:n
     sum = 0;
     for l = 1:k
         if n <= dimX*dimY
-            if mod(i,dimX) < dimX
+            if mod(i,dimX) ~= dimX
                 sum = sum + x(i+1,i,l);
             end
-            if mod(i,dimX) > 1
+            if mod(i,dimX) ~= 1
                 sum = sum + x(i-1,i,l);
             end
 
@@ -20,10 +20,10 @@ for i = 1:n
             j = dimX*dimY+dimY*(modulogrej-1) + ceil(i/dimX);
             sum = sum + x(j, i, l);
         else
-            if mod(i,dimY) < dimY
+            if mod(i,dimY) ~= dimY
                 sum = sum + x(i+1, i, l);
             end
-            if mod(i,dimY) > 1
+            if mod(i,dimY) ~= 1
                 sum = sum + x(i-1,i,l);
             end
 
