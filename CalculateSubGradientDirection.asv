@@ -20,7 +20,7 @@ for i = 1:n
             if mod(i,dimY) > 1
                 sum = sum + x(i-1,i,l);
             end
-            j = (mod(j-dimX*dimY)-1)*dimX+ceil((j-dimX*dimY)/dimY);
+            j = (mod(j-dimX*dimY)-1)*dimX+ceil((j-dimX*dimY)/dimY)
         end
     end
     gamma(i) = gamma(i) - sum;
