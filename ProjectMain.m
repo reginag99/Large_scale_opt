@@ -13,7 +13,11 @@ for iteration = 1:nrOfIterations
     %ht är lösningen på lagrange, vilket jag tänker att vi får ut i task 2
     alpha = theta*(k-ht)/gammaT^2;
     %theta är en step length parameter, inget mr speciellt
-    u = max(0,u+alpha*max(0,gammaT))
+    if u == 0
+        u = max(0,u+alpha*max(0,gammaT));
+    elseif u > 0
+        u = max(0,u+alpha*0,gammaT);
+    end
     t = t + 1;
     if mod(iteration, 10) == 0
         theta = theta * 0.95;
