@@ -12,7 +12,13 @@ for i = 1:n
             if mod(i,dimX) > 1
                 sum = sum + x(i-1,i,l);
             end
-            j = dimX*dimY+dimY*(mod(i,dimX)-1) + ceil(1/dimX);
+
+            modulogrej = mod(i,dimX);
+            if modulogrej == 0
+                modulogrej = dimX;
+            end
+            j = dimX*dimY+dimY*(modulogrej-1) + ceil(i/dimX);
+            sum = sum + x(j, i, l);
         else
             if mod(i,dimY) < dimY
                 sum = sum + x(i+1, i, l);
@@ -20,7 +26,13 @@ for i = 1:n
             if mod(i,dimY) > 1
                 sum = sum + x(i-1,i,l);
             end
-            j = (mod(j-dimX*dimY)-1)*dimX+ceil((j-dimX*dimY)/dimY);
+
+            modulogrej = mod(i-dimX*dimY, dimY);
+            if modulogrej == 0
+                modulogrej = dimY;
+            end
+            j = (modulogrej-1)*dimX+ceil((i-dimX*dimY)/dimY);
+            sum = sum + x(j, i, l);
         end
     end
     gamma(i) = gamma(i) - sum;
