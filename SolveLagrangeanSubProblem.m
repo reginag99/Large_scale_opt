@@ -1,7 +1,7 @@
 % outputs an x matrix of dimensions n*n*k  that contains a 1 for X_ijl if there exists a path from node i to j for contact-pair l
-function [x, nrContactPairs] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)    
+function [x, h_u] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)    
     n = dimX*dimY*2;
-    nl = gsp(dimX, dimY, u, k, com); % contains optimized(minimized paths for all subproblems)
+    nl = gsp(dimX, dimY, u', k, com); % contains optimized(minimized paths for all subproblems)
     last = 0;
     okcom = [];
     newnl = [];
@@ -30,15 +30,53 @@ function [x, nrContactPairs] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)
             fromNode = newnl(j + 1);
             toNode = newnl(j);
             x(fromNode, toNode, linkNr) = 1;
-            x(toNode, fromNode, linkNr) = 1;
+            %x(toNode, fromNode, linkNr) = 1;
             j = j + 1;
         end
         
         % this adds a 'logical' link that a connection between and start
         % and terminal node has been made
         x(linkStartNode, linkTerminalNode, linkNr) = 1;
-        x(linkTerminalNode, linkStartNode, linkNr) = 1;
+        %x(linkTerminalNode, linkStartNode, linkNr) = 1;
         nrContactPairs = nrContactPairs + 1;
         j = j + 1; % this is to skip the start node so we dont connect two different contact pairs
     end
+    
+    
+    %calculate h_u
+    tmpSum = nrContactPairs;
+    for l = 1:k
+        for i = 1:dimX*dimY*2
+            if i <= dimX*dimY
+                if mod(i,dimX) ~= 0
+                    tmpSum = tmpSum - u(i)* x(i+1,i,l);
+                end
+                if mod(i,dimX) ~= 1
+                    tmpSum = tmpSum - u(i)* x(i-1,i,l);
+                end
+
+                modulogrej = mod(i,dimX);
+                if modulogrej == 0
+                    modulogrej = dimX;
+                end
+                j = dimX*dimY+dimY*(modulogrej-1) + ceil(i/dimX);
+                tmpSum = tmpSum - u(i)* x(j, i, l);
+            else
+                if mod(i,dimY) ~= 0
+                    tmpSum = tmpSum - u(i)* x(i+1, i, l);
+                end
+                if mod(i,dimY) ~= 1
+                    tmpSum = tmpSum - u(i)* x(i-1,i,l);
+                end
+
+                modulogrej = mod(i-dimX*dimY, dimY);
+                if modulogrej == 0
+                    modulogrej = dimY;
+                end
+                j = (modulogrej-1)*dimX+ceil((i-dimX*dimY)/dimY);
+                tmpSum = tmpSum - u(i)* x(j, i, l);
+            end
+        end
+    end
+    h_u = sum(u) + tmpSum;
 end
