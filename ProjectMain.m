@@ -5,30 +5,26 @@ theta = 2;
 thetaCount = 0;
 nrOfIterations = 1000;
 gammaT = [];
-k_erg = 2;
+k_erg = 4;
 erg_sum = 1;
+h_bestUpperBound = Inf;
 
 for iteration = 1:nrOfIterations
     [x, ht] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com);
     
-    hu = min(h,ht);%keep the best ht(u_t) aka upper boundery
-    %xu =???? 
-    gammaT = CalculateSubGradientDirection(x, n, k);
+    h_bestUpperBound = min(h_bestUpperBound, ht);%keep the best ht(u_t) aka upper boundery
+    gammaT = CalculateSubGradientDirection(x, k, dimX, dimY);
+    gammaT = norm(gammaT, 2);
     alpha = theta*(k-ht)/gammaT^2;
-
-    x_erg(1) = x(1,:,:);
-    x_erg(2) = x(2,:,:); %osäker på detta. står bara om x0 i funcktionen i pdfen men vi behöver ju x-erg(2) för beräkningarna
-    
-    if iteration > 1
+    [fx, feasible] = calculateFx(x, dimX, dimY, k, com);
+    if iteration == 1
+       x_erg = x; 
+    else
         erg_sum = erg_sum + iteration^k_erg;
         x_erg = ((erg_sum - iteration^k_erg)/erg_sum) * x_erg + (iteration^k_erg/erg_sum) * x_previous;
     end
 
-    for s = 3:iteration-1
-        x_erg_u = x_erg_u + (s+1)^k;%kolla på
-        x_erg_l = x_erg_l + (s+1)^k;
-        x_erg(1,iteration) = x_erg_u/x_erg_l*x_erg(1,iteration-1) + t^k/x_erg_l*x_erg(1,iteration-2);
-    end
+    
     %construct a feasable solution to the primal problem my making
     %adjustments to x_erg. skriva om lösningen för h i
     %SolveLagrangeSubProblem till en egen fil och applicera detta här

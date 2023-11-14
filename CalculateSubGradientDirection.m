@@ -1,5 +1,5 @@
-function gamma = CalculateSubGradientDirection(x, n, k,dimX,dimY)
-
+function gamma = CalculateSubGradientDirection(x, k, dimX, dimY)
+n = 2*dimX*dimY;
 gamma = ones(1, n);
 
 for i = 1:n
