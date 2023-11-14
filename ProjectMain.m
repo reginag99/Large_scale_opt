@@ -9,7 +9,7 @@ k_erg = 2;
 erg_sum = 1;
 
 for iteration = 1:nrOfIterations
-    [x, ht] = SolveLagrangeanSubProblem(u);
+    [x, ht] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com);
     
     hu = min(h,ht);%keep the best ht(u_t) aka upper boundery
     %xu =???? 
