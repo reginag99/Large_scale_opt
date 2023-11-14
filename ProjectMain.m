@@ -6,18 +6,26 @@ thetaCount = 0;
 nrOfIterations = 1000;
 gammaT = [];
 k_erg = 2;
+erg_sum = 1;
 
 for iteration = 1:nrOfIterations
     [x, ht] = SolveLagrangeanSubProblem(u);
-  
-    hu = max(h,ht);%keep the best ht(u_t) aka upper boundery
+    
+    hu = min(h,ht);%keep the best ht(u_t) aka upper boundery
+    %xu =???? 
     gammaT = CalculateSubGradientDirection(x, n, k);
     alpha = theta*(k-ht)/gammaT^2;
 
     x_erg(1) = x(1,:,:);
     x_erg(2) = x(2,:,:); %osäker på detta. står bara om x0 i funcktionen i pdfen men vi behöver ju x-erg(2) för beräkningarna
-    for s = 0:iteration-1
-        x_erg_u = x_erg_u + (s+1)^k;
+    
+    if iteration > 1
+        erg_sum = erg_sum + iteration^k_erg;
+        x_erg = ((erg_sum - iteration^k_erg)/erg_sum) * x_erg + (iteration^k_erg/erg_sum) * x_previous;
+    end
+
+    for s = 3:iteration-1
+        x_erg_u = x_erg_u + (s+1)^k;%kolla på
         x_erg_l = x_erg_l + (s+1)^k;
         x_erg(1,iteration) = x_erg_u/x_erg_l*x_erg(1,iteration-1) + t^k/x_erg_l*x_erg(1,iteration-2);
     end
@@ -29,7 +37,7 @@ for iteration = 1:nrOfIterations
     %iteration t. update to the best lower bound and corresponding solution
     %vector
     %terminate if t = tao nrOfiterations eller om skillnaden mellan hu och
-    %hl är inom en viss gräns
+    %fl är inom en viss gräns
     %t = t + 1;%vet inte om detta verkligen behövs
         %theta är en step length parameter, inget mr speciellt
     if u == 0
@@ -56,5 +64,6 @@ for iteration = 1:nrOfIterations
     if mod(iteration, 10) == 0
         theta = theta * 0.95;
     end
+    x_previous = x;
 end
 
