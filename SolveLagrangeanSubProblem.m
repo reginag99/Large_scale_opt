@@ -42,6 +42,13 @@ function [x, h_u] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)
         j = j + 1; % this is to skip the start node so we dont connect two different contact pairs
     end
     
+    newcom = [];
+    for contactPair = 1:length(okcom) 
+       newcom = [newcom; com(okcom(contactPair), :)];
+
+    end
+    
+    
     
     %calculate h_u
     tmpSum = nrContactPairs;

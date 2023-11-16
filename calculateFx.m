@@ -1,7 +1,6 @@
 function [fx, feasible] = calculateFx(x, dimX, dimY, k, com)
     feasible = true;
     fx = 0;
-    % TODO, skriv funktion som beräknar primal objektive värdet från en
     % X_matris och om konstraintsen håller (båda)
     
     %check if first constraint holds i.e Xjil = Xijl, each outgoing
