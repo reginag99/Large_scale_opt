@@ -1,16 +1,25 @@
-function [solutions, nrContactPairs] = GetFeasiblesolution(dimX, dimY, k, com)
+function [solutions, nrContactPairs] = GetFeasiblesolution(dimX, dimY, u, k, com)
+    
     linkCosts = zeros(dimX*dimY*2, 1);
-    penalty = 100;
+    penalty = inf;
     %newSolutions = gsp(dimX, dimY, u, k, com);   
     %isDuplicates = length(newSolutions) ~= length(unique(newSolutions));
     solutions = [];
-    solutions(1).path = {1,2,3};
+    
+    
+    for cP = 1:k
+        % set penalty on each startnode
+        linkCosts(com(cP, 1)) = 1000;
+        % set penalty on each terminalnode
+        linkCosts(com(cP, 2)) = 1000;
+    end
+    
     
     for contactPair = 1:k
         individualSolution = gsp(dimX, dimY, linkCosts, 1, com(contactPair, :));   % gives us index of passed nodes
         
         % check that we have not already passed the solution
-        if linkCosts(individualSolution) == 0
+        if linkCosts(individualSolution(2:end-1)) == 0
             solutions(contactPair).path = individualSolution;
             linkCosts(individualSolution) = linkCosts(individualSolution) + penalty;  
         else
@@ -19,7 +28,7 @@ function [solutions, nrContactPairs] = GetFeasiblesolution(dimX, dimY, k, com)
             pathIndex = 0;
             for previousSolutions = 1:length(solutions)
                 if ~isempty(intersect(individualSolution, solutions(previousSolutions).path))
-                    nrPathsCrossed = nrPathsCrossed +1;
+                    nrPathsCrossed = nrPathsCrossed + 1;
                     oldPathIndex = previousSolutions;
                 end
             end
@@ -29,9 +38,15 @@ function [solutions, nrContactPairs] = GetFeasiblesolution(dimX, dimY, k, com)
                 newPathLength = length(individualSolution);
                 oldPathLength = length(solutions(oldPathIndex).path);
                 % only add path if new one is better
-                if newPathLength < oldPathLength
+                
+                %if newPathLength < oldPathLength
+                if rand() < 0.5
                     % remove penalty from old path nodes
-                    linkCosts(solutions(oldPathIndex).path) = linkCosts(solutions(oldPathIndex).path) - penalty;
+                    linkCosts(solutions(oldPathIndex).path(2:end-1)) = 0;
+                    doubleUsedNode = intersect(solutions(oldPathIndex).path, individualSolution);
+                    linkCosts(doubleUsedNode) = penalty;
+                    
+                    
                     solutions(oldPathIndex).path = NaN;
                     % add penalty to new path nodes
                     solutions(contactPair).path = individualSolution;
@@ -40,6 +55,9 @@ function [solutions, nrContactPairs] = GetFeasiblesolution(dimX, dimY, k, com)
                     solutions(contactPair).path = NaN;
                 end
             end
+            
+            
+            
             if nrPathsCrossed > 1
                 solutions(contactPair).path = NaN;
             end
@@ -57,7 +75,7 @@ function [solutions, nrContactPairs] = GetFeasiblesolution(dimX, dimY, k, com)
         end
     end
     
-    %visagrid(dimX, dimY, nl, okcom, linkCosts, 25);
+    visagrid(dimX, dimY, nl, okcom, linkCosts, 25);
     %linkCosts(linkCosts >= 200)
     
     
