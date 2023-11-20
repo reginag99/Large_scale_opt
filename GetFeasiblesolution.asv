@@ -95,7 +95,6 @@ function [solutions, nrContactPairs, nl, okcom] = GetFeasiblesolution(dimX, dimY
         end
     end
     
-    
     %visagrid(dimX, dimY, nl, okcom, linkCosts, 25);
     %linkCosts(linkCosts >= 200)
     

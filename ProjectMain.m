@@ -1,35 +1,41 @@
-%t = 0;
 nOfRelaxedConstraints = 2 * dimX * dimY;
-u = zeros(1, nOfRelaxedConstraints)+1/nOfRelaxedConstraints;
+u = zeros(1, nOfRelaxedConstraints) + 1/nOfRelaxedConstraints;
 theta = 2;
 thetaCount = 0;
 nrOfIterations = 1000;
 gammaT = [];
 erg_sum = 1;
+k_erg = 6;
 h_bestUpperBound = Inf;
 limit = round(k*0.1);
 h_bestLowerBound = 0;
-
+bestnl = [];
+bestContactPairs = 0;
 
     
-
-
 for iteration = 1:nrOfIterations
-    [x, ht] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com);
-    [solutions, h_lower] = GetFeasiblesolution(dimX, dimY, k, com);
-    h_bestLowerBound = max(h_bestLowerBound, h_lower);
+    [solution, contactPairs, nl, feasCom] = GetFeasiblesolution(dimX, dimY, u, k, com);
+    [x, ht, newnl, okcom] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com);
+    if contactPairs > bestContactPairs
+        bestnl = nl;
+        bestContactPairs = contactPairs;
+        bestcom = feasCom;
+    end
     
-    h_bestUpperBound = min(h_bestUpperBound, ht);%keep the best ht(u_t) aka upper boundery
+    %[solutions, h_lower] = GetFeasiblesolution(dimX, dimY, k, com);
+    %h_bestLowerBound = max(h_bestLowerBound, h_lower);
+    
+    h_bestUpperBound = min(h_bestUpperBound, ht); %keep the best ht(u_t) aka upper boundery
     gammaT = CalculateSubGradientDirection(x, k, dimX, dimY);
     %gammaT = norm(gammaT, 2);
-    [fx, feasible] = calculateFx(x, dimX, dimY, k, com);
-    alpha = theta*(h_bestLowerBound-ht)/norm(gammaT, 2)^2;
-    %if iteration == 1
-    %   x_erg = x; 
-    %else
-    %    erg_sum = erg_sum + iteration^k_erg;
-    %    x_erg = ((erg_sum - iteration^k_erg)/erg_sum) * x_erg + (iteration^k_erg/erg_sum) * x_previous;
-    %end
+    %[fx, feasible_fx] = calculateFx(x, dimX, dimY, k, com);
+    alpha = theta*(ht - h_bestLowerBound)/norm(gammaT, 2)^2;
+%     if iteration == 1
+%        x_erg = x; 
+%     else
+%         erg_sum = erg_sum + iteration^k_erg;
+%         x_erg = ((erg_sum - iteration^k_erg)/erg_sum) * x_erg + (iteration^k_erg/erg_sum) * x_previous;
+%     end
 
     
     %construct a feasable solution to the primal problem my making
@@ -44,9 +50,9 @@ for iteration = 1:nrOfIterations
     %t = t + 1;%vet inte om detta verkligen behövs
         %theta är en step length parameter, inget mr speciellt
     if u == 0
-        u = max(0,u+alpha*max(0,gammaT));
+        u = max(0,u-alpha*max(0,gammaT));
     elseif u > 0
-        u = max(0,u+alpha*gammaT);
+        u = max(0,u-alpha*gammaT);
     end
     %u = max(0,u+alpha*max(0,gammaT));
 
@@ -67,12 +73,20 @@ for iteration = 1:nrOfIterations
     if mod(iteration, 10) == 0
         theta = theta * 0.95;
     end
-    %x_previous = x;
-    diff = h_bestUpperBound - h_bestLowerBound;
-    if diff < limit
-        break
-    end
-    disp(diff)
+%     x_previous = x;
+%     diff = h_bestUpperBound - h_bestLowerBound;
+%     if diff < limit
+%         break
+%     end
+%     
+%     [x_rounded, feasible, nrContactPairs] = testX_erg(x_erg, dimX, dimY, k, com);
+%     if feasible == 1 && nrContactPairs == k
+%         disp("feasible solution found!!!")
+%         break
+%     end
+       
+    disp(iteration)
+    
 end
-
+visagrid(dimX, dimY, bestnl, bestcom, u, 25);
 

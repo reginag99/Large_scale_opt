@@ -1,5 +1,5 @@
 % outputs an x matrix of dimensions n*n*k  that contains a 1 for X_ijl if there exists a path from node i to j for contact-pair l
-function [x, h_u] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)    
+function [x, h_u, newnl, okcom] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)    
     n = dimX*dimY*2;
     nl = gsp(dimX, dimY, u', k, com); % contains optimized(minimized paths for all subproblems)
     last = 0;
@@ -36,8 +36,8 @@ function [x, h_u] = SolveLagrangeanSubProblem(dimX, dimY, u, k, com)
         
         % this adds a 'logical' link that a connection between and start
         % and terminal node has been made
-        x(linkStartNode, linkTerminalNode, linkNr) = 1;
-        %x(linkTerminalNode, linkStartNode, linkNr) = 1;
+        %x(linkStartNode, linkTerminalNode, linkNr) = 1;
+        x(linkTerminalNode, linkStartNode, linkNr) = 1;
         nrContactPairs = nrContactPairs + 1;
         j = j + 1; % this is to skip the start node so we dont connect two different contact pairs
     end
