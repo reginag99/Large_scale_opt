@@ -1,4 +1,4 @@
-function [solutions, nrContactPairs, nl, okcom] = GetFeasiblesolution(dimX, dimY, u, k, com)
+function [solutions, nrContactPairs, nl, okcom,ReusedNodes] = GetFeasiblesolution(dimX, dimY, u, k, com,ReusedNodes)
     nrNodes = dimX*dimY*2;
     linkCosts = u';
     %linkCosts = zeros(dimX*dimY*2, 1);
@@ -15,6 +15,7 @@ function [solutions, nrContactPairs, nl, okcom] = GetFeasiblesolution(dimX, dimY
         linkCosts(com(cP, 2)) = 100000;
     end
     
+    u(ReusedNodes) = u(ReusedNodes) + 1000;
     
     %rand com
     com = com(randperm(size(com, 1)), :);
@@ -37,15 +38,11 @@ function [solutions, nrContactPairs, nl, okcom] = GetFeasiblesolution(dimX, dimY
                 end
             end
             
-            % compare length of paths with the path it crossed if it is 1
+            % compare cost of paths with the path it crossed if it is 1
             if nrPathsCrossed == 1
-                newPathLength = length(individualSolution);
-                oldPathLength = length(solutions(oldPathIndex).path);
-                % only add path if new one is better
-                
-                %if newPathLength < oldPathLength
                 newPathCost = sum(u(individualSolution));
                 oldPathCost = sum(u(solutions(oldPathIndex).path));
+                
                 if newPathCost < oldPathCost
                     % remove penalty from old path nodes
                     linkCosts(solutions(oldPathIndex).path(2:end-1)) = 0;
@@ -95,7 +92,14 @@ function [solutions, nrContactPairs, nl, okcom] = GetFeasiblesolution(dimX, dimY
         end
     end
     
-    
+    %Adding weight to the 
+    ReusedNodes = [];
+    for contactPair = 1:k
+        if isnan(solutions(contactPair).path)
+            newPath = gsp(dimX, dimY, linkCosts, 1, com(contactPair, :) );
+            ReusedNodes = [ReusedNodes; intersect(nl, newPath)];
+        end
+    end
     %visagrid(dimX, dimY, nl, okcom, linkCosts, 25);
     %linkCosts(linkCosts >= 200)
     
